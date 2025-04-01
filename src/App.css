@@ -1,38 +1,230 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+body {
+  background: linear-gradient(135deg, #1a2a44 0%, #2e4b6b 100%);
+  color: #fff;
   min-height: 100vh;
+  padding: 20px;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #ffd700; /* Gold accent */
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.input-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+select, input, button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+select, input {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+select:focus, input:focus {
+  outline: none;
+  border-color: #ffd700;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+button {
+  background: #ffd700;
+  color: #1a2a44;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #e6c200;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.teams-list {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.teams-list h3 {
+  font-size: 1.5rem;
+  color: #ffd700;
+}
+
+.teams-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.teams-list li {
+  font-size: 1.1rem;
+  padding: 5px 0;
+  color: #d1e8ff;
+}
+
+.bracket-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  gap: 20px;
 }
 
-.App-link {
-  color: #61dafb;
+.round {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.round h3 {
+  font-size: 1.3rem;
+  color: #ffd700;
+  margin-bottom: 10px;
+}
+
+.match {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.team {
+  flex: 1;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.team:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.winner {
+  background: #28a745 !important;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+.points-table {
+  margin-top: 30px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.points-table h2 {
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+th {
+  background: rgba(255, 255, 255, 0.3);
+  color: #1a2a44;
+  font-weight: 600;
+}
+
+td {
+  color: #d1e8ff;
+}
+
+.winner-bracket {
+  margin-top: 30px;
+  text-align: center;
+  background: rgba(40, 167, 69, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.winner-bracket h2 {
+  font-size: 1.8rem;
+  color: #ffd700;
+  margin-bottom: 10px;
+}
+
+.winner-bracket p {
+  font-size: 1.5rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
   }
-  to {
-    transform: rotate(360deg);
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .input-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  select, input, button {
+    width: 100%;
+  }
+
+  .bracket-container {
+    flex-direction: column;
+  }
+
+  .match {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .team {
+    width: 100%;
   }
 }
