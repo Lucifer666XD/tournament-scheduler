@@ -191,28 +191,130 @@ function App() {
     const nextPowerOf2 = Math.pow(2, Math.ceil(Math.log2(teams.length)));
     const paddedTeams = [...teams];
     while (paddedTeams.length < nextPowerOf2) paddedTeams.push('BYE');
-
+  
+    // Initialize brackets
     const winnersBracket = [];
-    let currentWinnersRound = [];
-    for (let i = 0; i < paddedTeams.length; i += 2) {
-      currentWinnersRound.push({ team1: paddedTeams[i], team2: paddedTeams[i + 1], winner: null });
-    }
-    winnersBracket.push(currentWinnersRound);
-
     const losersBracket = [];
-    losersBracket.push([]);
-
-    while (currentWinnersRound.length > 1) {
-      const nextWinnersRound = [];
-      for (let i = 0; i < currentWinnersRound.length; i += 2) {
-        nextWinnersRound.push({ team1: null, team2: null, winner: null });
-      }
-      winnersBracket.push(nextWinnersRound);
-      currentWinnersRound = nextWinnersRound;
+    
+    // Generate first round of winners bracket
+    const firstRound = [];
+    for (let i = 0; i < paddedTeams.length; i += 2) {
+      firstRound.push({ team1: paddedTeams[i], team2: paddedTeams[i + 1], winner: null });
     }
-
+    winnersBracket.push(firstRound);
+  
+    // Calculate number of rounds needed
+    const totalRounds = Math.log2(nextPowerOf2);
+    
+    // Generate subsequent winners bracket rounds
+    for (let i = 1; i < totalRounds; i++) {
+      const matchesInRound = nextPowerOf2 / Math.pow(2, i + 1);
+      const round = Array(matchesInRound).fill().map(() => ({
+        team1: null,
+        team2: null,
+        winner: null
+      }));
+      winnersBracket.push(round);
+    }
+  
+    // Generate losers bracket structure
+    // First losers round (from first winners round losers)
+    losersBracket.push(Array(firstRound.length / 2).fill().map(() => ({
+      team1: null,
+      team2: null,
+      winner: null
+    })));
+  
+    // Generate subsequent losers rounds
+    for (let i = 0; i < totalRounds - 1; i++) {
+      const matchesInRound = nextPowerOf2 / Math.pow(2, i + 2);
+      if (matchesInRound >= 1) {
+        const round = Array(Math.ceil(matchesInRound)).fill().map(() => ({
+          team1: null,
+          team2: null,
+          winner: null
+        }));
+        losersBracket.push(round);
+      }
+    }
+  
+    // Add grand final
+    winnersBracket.push([{ team1: null, team2: null, winner: null }]);
+  
     setBracket({ winners: winnersBracket, losers: losersBracket });
   };
+  
+  const setDoubleEliminationWinner = useCallback((roundIndex, matchIndex, team, bracketType = 'winners') => {
+    const newBracket = { ...bracket };
+    const winners = [...newBracket.winners];
+    const losers = [...newBracket.losers];
+  
+    if (bracketType === 'winners') {
+      const currentMatch = winners[roundIndex][matchIndex];
+      const loser = currentMatch.team1 === team ? currentMatch.team2 : currentMatch.team1;
+      currentMatch.winner = team;
+  
+      // Move winner to next winners round
+      if (roundIndex < winners.length - 1) {
+        const nextMatchIndex = Math.floor(matchIndex / 2);
+        const isTeam1 = matchIndex % 2 === 0;
+        if (isTeam1) {
+          winners[roundIndex + 1][nextMatchIndex].team1 = team;
+        } else {
+          winners[roundIndex + 1][nextMatchIndex].team2 = team;
+        }
+      }
+  
+      // Move loser to losers bracket
+      if (loser && loser !== 'BYE') {
+        if (roundIndex === 0) {
+          // First round losers
+          const loserMatchIndex = Math.floor(matchIndex / 2);
+          if (matchIndex % 2 === 0) {
+            losers[0][loserMatchIndex].team1 = loser;
+          } else {
+            losers[0][loserMatchIndex].team2 = loser;
+          }
+        } else {
+          // Subsequent rounds losers
+          const loserRoundIndex = Math.floor(roundIndex / 2);
+          const loserMatchIndex = Math.floor(matchIndex / 2);
+          if (losers[loserRoundIndex + 1]) {
+            if (matchIndex % 2 === 0) {
+              losers[loserRoundIndex + 1][loserMatchIndex].team1 = loser;
+            } else {
+              losers[loserRoundIndex + 1][loserMatchIndex].team2 = loser;
+            }
+          }
+        }
+      }
+    } else {
+      // Handle losers bracket
+      const currentMatch = losers[roundIndex][matchIndex];
+      currentMatch.winner = team;
+  
+      // Move winner to next losers round or grand final
+      if (roundIndex < losers.length - 1) {
+        const nextMatchIndex = Math.floor(matchIndex / 2);
+        const isTeam1 = matchIndex % 2 === 0;
+        if (isTeam1) {
+          losers[roundIndex + 1][nextMatchIndex].team1 = team;
+        } else {
+          losers[roundIndex + 1][nextMatchIndex].team2 = team;
+        }
+      } else if (roundIndex === losers.length - 1) {
+        // Move losers bracket winner to grand final
+        winners[winners.length - 1][0].team2 = team;
+      }
+    }
+  
+    // Check for tournament winner
+    if (bracketType === 'winners' && roundIndex === winners.length - 1) {
+      setWinnerState(team);
+    }
+  
+    setBracket({ winners, losers });
+  }, [bracket]);
 
   const generateRoundRobin = () => {
     const rounds = [];
@@ -315,7 +417,7 @@ function App() {
                   round={round}
                   roundIndex={index}
                   bracketType="winners"
-                  setWinner={setWinner}
+                  setWinner={setDoubleEliminationWinner}
                   tournamentType={tournamentType}
                 />
               ))}
@@ -328,7 +430,7 @@ function App() {
                   round={round}
                   roundIndex={index}
                   bracketType="losers"
-                  setWinner={setWinner}
+                  setWinner={setDoubleEliminationWinner}
                   tournamentType={tournamentType}
                 />
               ))}
